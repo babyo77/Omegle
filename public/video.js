@@ -217,7 +217,6 @@ const configuration = {
     hangup()
   })
 
-
   socket.on('disconnect', () => {
     hangup();
     socket.emit('message', 'Disconnected ❗')
