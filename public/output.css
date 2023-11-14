@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+*::-webkit-scrollbar {
+    width: 0px; 
+    background: transparent;  
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.607);
+  }
+
+
+  #stranger,#you{
+    justify-self: center;
+    width: 21.8rem; height: 17vw; object-fit: cover;
+  }
+
+@media (max-width:600px){
+    #stranger,#you{
+        justify-self: center;
+        width: 100vw; height: 50vh; object-fit: cover;
+      }    
+}
