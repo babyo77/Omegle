@@ -198,14 +198,26 @@ const configuration = {
   });
   
   // Remote peer receives the answer through the signaling server
-  socket.on('answer', async (answer) => {
-    try {
+socket.on('answer', async (answer) => {
+  try {
+    console.log('Received answer. Current connection state:', peerConnection.connectionState);
+
+    // Check if the connection state allows setting the remote description
+    if (
+      peerConnection.connectionState === 'have-remote-offer' ||
+      peerConnection.connectionState === 'have-local-offer'
+    ) {
       // Set the remote description to the received answer
       await peerConnection.setRemoteDescription(answer);
-    } catch (error) {
-      console.error('Error setting remote description:', error);
+      console.log('Remote description set successfully.');
+    } else {
+      console.error('Invalid connection state for setting remote description:', peerConnection.connectionState);
     }
-  });
+  } catch (error) {
+    console.error('Error setting remote description:', error);
+  }
+});
+
   
  
   function hangup() {
