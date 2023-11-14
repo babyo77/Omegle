@@ -56,8 +56,6 @@ socket.on('next',()=>{
     console.log('Hangup event received from a client');
     const rooms = Array.from(socket.rooms);
     const room = rooms.length > 1 ? rooms[1] : null;
-
-    // Broadcast the hangup event to all connected clients (if needed)
     socket.broadcast.to(room).emit('hangup');
   });
 

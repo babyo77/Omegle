@@ -26,6 +26,7 @@ function color(ok) {
 function findNextRoom() {
     if(peerConnection){
         hangup()
+        socket.emit('hangup')
     }
     paired = false
     socket.emit('next')
@@ -45,6 +46,7 @@ socket.on('paired', (msg) => {
 window.onbeforeunload = () => {
     if(peerConnection){
         hangup()
+        socket.emit('hangup')
     }
     socket.emit('message', 'Disconnected ❗')
 }
@@ -52,6 +54,7 @@ window.onbeforeunload = () => {
 socket.on('pairing', (msg) => {
     if(peerConnection){
         hangup()
+        socket.emit('hangup')
     }
     connectionstatus.textContent = msg
     Chat.innerHTML = ''
@@ -99,7 +102,7 @@ let peerConnection;
 const configuration = {
     iceServers: [
       {
-        urls: ['stun:stun.l.google.com:19302', 'stun:global.stun.twilio.com:3478'],
+        urls: ['stun:stun.l.google.com:19302', 'stun:stun2.1.google.com:19302'],
       },
     ],
   };
@@ -194,22 +197,22 @@ const configuration = {
     }
   });
   
-  // Hangup function to close the connection
+ 
   function hangup() {
     if (peerConnection) {
-      // Stop the local stream
-      const localStream = You.srcObject;
-      localStream.getTracks().forEach((track) => track.stop());
   
       // Close the peer connection
       peerConnection.close();
       peerConnection = null;
   
-      // Clear the 'srcObject' of the local and remote video elements
-      You.srcObject = null;
+      // Clear the srcObject
       stranger.srcObject = null;
   
-      
+      socket.emit('hangup')
     }
   }
   
+
+  socket.on('hangup',()=>{
+    hangup()
+  })
