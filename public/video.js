@@ -317,3 +317,8 @@ socket.on('disconnect', () => {
     socket.emit('message', 'Disconnected ❗');
 });
 
+
+  window.addEventListener('offline', ()=>{
+    window.location.href ='/index.html'
+  });
+  
