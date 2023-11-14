@@ -1,4 +1,4 @@
-if(localStorage.getItem('ok')==='ok'){
+if(localStorage.getItem('ok')=='ok'){
 let socket = io()
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
