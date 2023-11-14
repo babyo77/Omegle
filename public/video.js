@@ -1,3 +1,8 @@
+if(localStorage.getItem('ok')=='ok'){
+
+}else{
+    window.location.href = '/index.html'
+}
 let socket = io()
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
