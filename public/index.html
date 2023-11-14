@@ -39,11 +39,25 @@
                     <h1 class="font-semibold text-xl max-sm:text-sm">Start Chatting:<span class="max-sm:hidden">👋</span></h1>
                 </div>
                     <div class="flex justify-center items-center">
-                <a href="video.html" class="border-none no-underline  font-semibold cursor-pointer p-2 px-6 text-white hover:bg-blue-700 bg-blue-500 rounded-md text-xl max-sm:text-[4vw]" ><span class="max-sm:hidden">💤</span>Video <span class="max-sm:hidden">🫧</span></a>
+                <a onclick="ask()" class="border-none no-underline  font-semibold cursor-pointer p-2 px-6 text-white hover:bg-blue-700 bg-blue-500 rounded-md text-xl max-sm:text-[4vw]" ><span class="max-sm:hidden">💤</span>Video <span class="max-sm:hidden">🫧</span></a>
               </div>
             </div>
         </div>
      </div>
     </div>
+    <script>
+        function ask(){
+        navigator.mediaDevices.getUserMedia({
+            audio:true,
+            video:true
+        }).then((stream)=>{
+            localStorage.setItem('ok','ok')
+               window.location.href='/video.html'
+
+        }).catch((error)=>{
+            location.reload()
+        })
+    }
+    </script>
 </body>
 </html>

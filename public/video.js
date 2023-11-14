@@ -1,3 +1,4 @@
+if(localStorage.getItem('ok')==='ok'){
 let socket = io()
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
@@ -310,7 +311,9 @@ function hangup() {
     }
 }
 
-socket.on('hangup', hangup);
+socket.on('hangup', ()=>{
+    hangup()
+});
 
 socket.on('disconnect', () => {
     hangup();
@@ -322,3 +325,10 @@ socket.on('disconnect', () => {
     window.location.href ='/index.html'
   });
   
+}else{
+    window.location.href='/index.html'
+}
+
+window.addEventListener('beforeunload',()=>{
+localStorage.clear()
+})
