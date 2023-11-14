@@ -8,17 +8,17 @@
     <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
 </head>
 <body>
-    <header class="w-screen flex p-7 px-7 justify-between items-center">
-        <div class="w-44">
+    <header class="w-screen flex p-7 px-7 max-sm:p-[7vw] max-sm:pt-8 justify-between items-center">
+        <div class="w-44 max-sm:w-[37vw]">
             <img src="assets/Logo_Omegle.svg.webp" class="cursor-pointer" alt="Logo_Omegle">
         </div>
-        <h1 class="font-semibold text-2xl cursor-default">Talk To Strangers!</h1>
+        <h1 class="font-semibold text-2xl cursor-default max-sm:text-[4vw]">Talk To Strangers!</h1>
     </header>  
-    <div class="flex w-screen gap-3 p-7 px-[2vw]">
+    <div class="flex w-screen gap-3 p-7 px-[2vw] max-sm:grid max-sm:justify-center max-sm:items-center max-sm:-mt-7">
       <div class="grid gap-3">
-        <video src="assets/OmegleSkip.mp4" loop id="stranger" muted autoplay playsinline class="border-none  bg-#565456"  style=" width: 21.8rem; height: 17vw; object-fit: cover;">
+        <video src="assets/OmegleSkip.mp4" loop id="stranger" muted autoplay playsinline class="border-none bg-#565456">
         </video>
-        <video src="assets/OmegleSkip.mp4" loop id="you" class="border-none bg-#565456" muted autoplay playsinline="playsinline" style="width: 21.8rem; height: 17vw; object-fit: cover;"></video>
+        <video src="assets/OmegleSkip.mp4" loop id="you" class="border-none bg-#565456" muted autoplay playsinline="playsinline"></video>
       </div>
       <div class="grid gap-2">
        <div id="ChatDiv" class="border border-gray-400 overflow-scroll p-2" style="height: 30vw;">
@@ -30,17 +30,17 @@
         </div>
        </div>
        <div class="flex gap-[.67vw]">
-        <button class="border grid justify-center items-center border-gray-400 px-[2vw] font-semibold group hover:bg-blue-500 hover:text-white transition-all" onclick="findNextRoom()">
-          Next<span class="text-xs -mt-[1vw] text-red-600 font-semibold group-hover:text-white">Esc</span>
+        <button class="border grid justify-center items-center max-sm:w-[18vw] border-gray-400 px-[2vw] font-semibold max-sm:text-[4vw] group hover:bg-blue-500 hover:text-white transition-all max-sm:h-[11vw]" onclick="findNextRoom()">
+          Next<span class="text-xs -mt-[1vw] text-red-600 font-semibold group-hover:text-white max-sm:hidden ">Esc</span>
       </button>
       <input type="text" class="border border-gray-400 rounded-none p-[1vw] px-[1vw] outline-none" style="width: 58vw;" name="" id="message">
-         <button class="border border-gray-400 px-[2vw] font-semibold hover:bg-blue-500 hover:text-white transition-all" id="send" onclick="sendMessage()">Send</button>
+         <button class="border border-gray-400 px-[2vw] max-sm:w-[18vw] font-semibold hover:bg-blue-500 hover:text-white transition-all" id="send" onclick="sendMessage()">Send</button>
        </div>
       </div>
     </div>
     <div class="flex gap-2 justify-center items-center">
       <!-- <input type="radio" name="agremment" id="Agremment" checked required> -->
-  <label for="agremment" class="text-center text-xs font-semibold p-3">By Start Calling you Accept all Privacy Policy and Terms of Service</label>
+  <label for="agremment" class="text-center text-xs font-semibold p-3 max-sm:text-[2vw]">By Start Calling you Accept all Privacy Policy and Terms of Service</label>
   </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
