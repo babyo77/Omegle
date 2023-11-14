@@ -220,7 +220,7 @@ async function start_call() {
       await  socket.emit('offer', offer);
     } catch (error) {
         console.error('Error accessing media devices:', error);
-        location.reload();
+        window.location.href = '/index.html'
     }
 }
 
