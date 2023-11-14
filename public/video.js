@@ -92,9 +92,15 @@ function sendMessage() {
     if (messageInput.value.trim() && paired === true){
         socket.emit('message', messageInput.value)
     createMessage('You', messageInput.value)
+    messageInput.value=""
     }
 }
 
+messageInput.addEventListener('keydown',(e)=>{
+    if(e.key=='Enter'){
+        sendMessage()
+    }
+})
 
 // webRTC video call Feature
 
@@ -102,7 +108,11 @@ let peerConnection;
 const configuration = {
     iceServers: [
       {
-        urls: ['stun:stun.l.google.com:19302', 'stun:stun2.1.google.com:19302'],
+        urls: [
+            'stun:stun.l.google.com:19302',
+            'stun:stun1.l.google.com:19302',
+            'stun:stun2.l.google.com:19302',
+          ],
       },
     ],
   };
