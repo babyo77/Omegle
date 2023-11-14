@@ -43,6 +43,9 @@ socket.on('paired', (msg) => {
 
 
 window.onbeforeunload = () => {
+    if(peerConnection){
+        hangup()
+    }
     socket.emit('message', 'Disconnected ❗')
 }
 
@@ -142,6 +145,7 @@ const configuration = {
     peerConnection.ontrack = (event) => {
       // Display the remote stream on the 'stranger' element
       stranger.srcObject = event.streams[0];
+      stranger.muted = false
     };
   
     // Additional ICE event handlers for logging purposes
