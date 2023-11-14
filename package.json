@@ -17,6 +17,7 @@
   "scripts": {
     "dev": "nodemon server.js"
   },
+  "start": "server.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
