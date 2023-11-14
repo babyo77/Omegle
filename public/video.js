@@ -208,6 +208,7 @@ const configuration = {
       socket.emit('offer', offer);
     } catch (error) {
       console.error('Error accessing media devices:', error);
+      start_call()
     }
   }
   
