@@ -5,6 +5,8 @@ const socketIO = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+const PORT = process.env.PORT || 3000;
+
 app.use(express.static('public'));
 
 let waiting_users = new Map();
@@ -103,7 +105,6 @@ function shuffleArray(array) {
 }
 
 
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
