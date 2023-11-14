@@ -174,131 +174,146 @@ function scrollToBottom(){
     ChatDiv.scrollTop = ChatDiv.scrollHeight;
 }
 // webRTC video call Feature
-
 let peerConnection;
 const configuration = {
     iceServers: [
-      {
-        urls: [
-            'stun:stun.l.google.com:19302',
-          ],
-      },
+        {
+            urls: ['stun:stun.l.google.com:19302'],
+        },
     ],
-  };
-  
-  // Local peer initiates the call
-  async function start_call() {
+};
+
+// Local peer initiates the call
+async function start_call() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      You.srcObject = stream;
-  
-      // Create an RTCPeerConnection if not already created
-      if (!peerConnection) {
-        createPeerConnection();
-      }
-  
-      // Add the local stream to the peer connection
-      stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
-  
-      // Create an offer and set it as the local description
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-  
-      // Send the offer to the signaling server
-      socket.emit('offer', offer);
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        // Assuming 'You' is the local video element
+        You.srcObject = stream;
+
+        // Create an RTCPeerConnection if not already created
+        if (!peerConnection) {
+            createPeerConnection();
+        }
+
+        // Add the local stream to the peer connection
+        stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
+
+        // Create an offer and set it as the local description
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        // Wait for ICE gathering to complete before sending the offer
+        await new Promise((resolve) => {
+            if (peerConnection.iceGatheringState === 'complete') {
+                resolve();
+            } else {
+                peerConnection.onicegatheringstatechange = () => {
+                    if (peerConnection.iceGatheringState === 'complete') {
+                        resolve();
+                        peerConnection.onicegatheringstatechange = null; // Reset the event handler
+                    }
+                };
+            }
+        });
+
+        // Send the offer to the signaling server
+      await  socket.emit('offer', offer);
     } catch (error) {
-      console.error('Error accessing media devices:', error);
-      start_call()
+        console.error('Error accessing media devices:', error);
+        location.reload();
     }
-  }
-  
-  // Function to create and configure the peer connection
-  function createPeerConnection() {
+}
+
+// Function to create and configure the peer connection
+async function createPeerConnection() {
     peerConnection = new RTCPeerConnection(configuration);
-  
+
     // Handle ICE candidate events
     peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        // Send the ICE candidate to the signaling server
-        socket.emit('ice-candidate', event.candidate);
-      }
+        if (event.candidate) {
+            // Send the ICE candidate to the signaling server
+            socket.emit('ice-candidate', event.candidate);
+        }
     };
-  
+
     // Event triggered when a remote stream is added to the peer connection
     peerConnection.ontrack = (event) => {
-      // Display the remote stream on the 'stranger' element
-      stranger.srcObject = event.streams[0];
-      stranger.muted = false
+        // Assuming 'stranger' is the remote video element
+        stranger.srcObject = event.streams[0];
+        stranger.muted = false;
     };
-  
+
     // Additional ICE event handlers for logging purposes
     peerConnection.onicecandidateerror = (error) => {
-      console.error('ICE candidate error:', error);
+        console.error('ICE candidate error:', error);
     };
-  
-    peerConnection.oniceconnectionstatechange = (event) => {
-      console.log('ICE connection state change:', peerConnection.iceConnectionState);
+
+    peerConnection.oniceconnectionstatechange = () => {
+        console.log('ICE connection state change:', peerConnection.iceConnectionState);
     };
-  
-    peerConnection.onicegatheringstatechange = (event) => {
-      console.log('ICE gathering state change:', peerConnection.iceGatheringState);
+
+    peerConnection.onicegatheringstatechange = () => {
+        console.log('ICE gathering state change:', peerConnection.iceGatheringState);
     };
-  }
-  
-  // Remote peer receives the offer through the signaling server
-  socket.on('offer', async (offer) => {
+}
+
+// Remote peer receives the offer through the signaling server
+socket.on('offer', async (offer) => {
     try {
-      // Create an RTCPeerConnection if not already created
-      if (!peerConnection) {
-        createPeerConnection();
-      }
-  
-      // Set the remote description to the received offer
-      await peerConnection.setRemoteDescription(offer);
-  
-      // Create an answer and set it as the local description
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-  
-      // Send the answer to the signaling server
-      socket.emit('answer', answer);
+        // Create an RTCPeerConnection if not already created
+        if (!peerConnection) {
+            createPeerConnection();
+        }
+
+        if (peerConnection.signalingState !== 'stable') {
+            await Promise.all([
+                peerConnection.setLocalDescription({ type: 'rollback' }),
+                peerConnection.setRemoteDescription(offer),
+            ]);
+            return;
+        }
+
+        // Set the remote description to the received offer
+        await peerConnection.setRemoteDescription(offer);
+
+        // Create an answer and set it as the local description
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        // Send the answer to the signaling server
+       await socket.emit('answer', answer);
     } catch (error) {
-      console.error('Error creating or setting answer:', error);
+        console.error('Error handling offer:', error);
     }
-  });
-  
-  // Remote peer receives the answer through the signaling server
-  socket.on('answer', async (answer) => {
+});
+
+// Remote peer receives the answer through the signaling server
+socket.on('answer', async (answer) => {
     try {
-      // Set the remote description to the received answer
-      await peerConnection.setRemoteDescription(answer);
+        // Set the remote description to the received answer
+        await peerConnection.setRemoteDescription(answer);
     } catch (error) {
-      console.error('Error setting remote description:', error);
+        console.error('Error setting remote description:', error);
     }
-  });
-  
- 
-  function hangup() {
+});
+
+function hangup() {
     if (peerConnection) {
-  
-      // Close the peer connection
-      peerConnection.close();
-      peerConnection = null;
-  
-      // Clear the srcObject
-      stranger.srcObject = null;
-  
-      socket.emit('hangup')
+        // Close the peer connection
+        peerConnection.close();
+        peerConnection = null;
+
+        // Clear the srcObject
+        stranger.srcObject = null;
+
+        socket.emit('hangup');
     }
-  }
-  
+}
 
-  socket.on('hangup',()=>{
-    hangup()
-  })
+socket.on('hangup', hangup);
 
-  socket.on('disconnect', () => {
+socket.on('disconnect', () => {
     hangup();
-    socket.emit('message', 'Disconnected ❗')
-  });
-  
+    socket.emit('message', 'Disconnected ❗');
+});
+
