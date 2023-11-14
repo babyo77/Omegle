@@ -1,6 +1,7 @@
 let socket = io()
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
+let ChatDiv = document.getElementById('ChatDiv')
 let messageInput = document.getElementById('message')
 let stranger = document.getElementById('stranger')
 let You = document.getElementById('you')
@@ -44,6 +45,7 @@ socket.on('paired', (msg) => {
 
 
 window.onbeforeunload = () => {
+    Chat.innerHTML=''
     if(peerConnection){
         hangup()
         socket.emit('hangup')
@@ -61,9 +63,10 @@ socket.on('pairing', (msg) => {
     paired = false
 })
 
-function createMessage(from, message) {
+function createMessage(from, message,id) {
     const msg = document.createElement('p')
     msg.textContent = `${from}: ${message}`
+    msg.id = id || 'message'
     if (message == 'Disconnected❗') {
         msg.textContent = message
         paired = false
@@ -71,18 +74,31 @@ function createMessage(from, message) {
         msg.classList.add('text-red-500')
     }
     Chat.append(msg)
+    scrollToBottom()
 }
 
 socket.on('message:recieved', (msg) => {
+    const typing =  document.querySelectorAll('#typing')
+    typing.forEach(typingMSG=>{
+        if(typing){
+
+            typing.forEach(msg=>{
+                typingMSG.remove()
+            })  
+        }
+    })
     color('')
     if (msg == 'Stranger left The Chat' || msg == 'Disconnected ❗') {
         connectionstatus.textContent = 'Chat Disconnected❗'
         color('ok')
         createMessage('Stranger', 'Stranger left The Chat')
         paired = false
+        scrollToBottom()
     } else {
         createMessage('Stranger', msg)
+        scrollToBottom()
     }
+   
 })
 
 function sendMessage() {
@@ -93,7 +109,9 @@ function sendMessage() {
         socket.emit('message', messageInput.value)
     createMessage('You', messageInput.value)
     messageInput.value=""
+    scrollToBottom()
     }
+    
 }
 
 messageInput.addEventListener('keydown',(e)=>{
@@ -102,6 +120,59 @@ messageInput.addEventListener('keydown',(e)=>{
     }
 })
 
+document.addEventListener('keydown',(e)=>{
+    if(e.key=='Escape'){
+        findNextRoom()
+    }
+})
+
+let TypinStatus = false
+
+messageInput.addEventListener('input',()=>{
+    if(!TypinStatus){
+        TypinStatus = true
+        socket.emit('typing')
+        scrollToBottom()
+    }
+
+   setTimeout(() => {
+    TypinStatus =  false
+        const typing =  document.querySelectorAll('#typing')
+        typing.forEach(msg=>{
+            if(typing){
+
+                typing.forEach(msg=>{
+                    msg.remove()
+                })  
+            }
+        })  
+    }, 1000);
+
+})
+
+socket.on('typing',()=>{
+    if(!TypinStatus){
+        createMessage('Stranger','Typing..','typing')
+        TypinStatus = true
+        scrollToBottom()
+    }
+
+  setTimeout(() => {
+        TypinStatus=false
+        const typing =  document.querySelectorAll('#typing')
+        if(typing){
+
+            typing.forEach(msg=>{
+                msg.remove()
+            })  
+        }
+    }, 1000);
+})
+
+
+function scrollToBottom(){
+    ChatDiv.scrollTop = ChatDiv.scrollHeight;
+}
 // webRTC video call Feature
 
 let peerConnection;
@@ -110,8 +181,6 @@ const configuration = {
       {
         urls: [
             'stun:stun.l.google.com:19302',
-            'stun:stun1.l.google.com:19302',
-            'stun:stun2.l.google.com:19302',
           ],
       },
     ],
@@ -198,26 +267,14 @@ const configuration = {
   });
   
   // Remote peer receives the answer through the signaling server
-socket.on('answer', async (answer) => {
-  try {
-    console.log('Received answer. Current connection state:', peerConnection.connectionState);
-
-    // Check if the connection state allows setting the remote description
-    if (
-      peerConnection.connectionState === 'have-remote-offer' ||
-      peerConnection.connectionState === 'have-local-offer'
-    ) {
+  socket.on('answer', async (answer) => {
+    try {
       // Set the remote description to the received answer
       await peerConnection.setRemoteDescription(answer);
-      console.log('Remote description set successfully.');
-    } else {
-      console.error('Invalid connection state for setting remote description:', peerConnection.connectionState);
+    } catch (error) {
+      console.error('Error setting remote description:', error);
     }
-  } catch (error) {
-    console.error('Error setting remote description:', error);
-  }
-});
-
+  });
   
  
   function hangup() {

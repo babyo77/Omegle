@@ -66,6 +66,11 @@ socket.on('next',()=>{
     const room = rooms.length > 1 ? rooms[1] : null;
         socket.broadcast.to(room).emit('message:recieved', data);
 });
+socket.on('typing',()=>{
+  const rooms = Array.from(socket.rooms);
+  const room = rooms.length > 1 ? rooms[1] : null;
+      socket.broadcast.to(room).emit('typing');
+})
 
 })
 
