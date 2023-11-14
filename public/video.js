@@ -216,3 +216,10 @@ const configuration = {
   socket.on('hangup',()=>{
     hangup()
   })
+
+
+  socket.on('disconnect', () => {
+    hangup();
+    socket.emit('message', 'Disconnected ❗')
+  });
+  
