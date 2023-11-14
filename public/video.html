@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omegle</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="assets/Logo_Omegle.svg.webp" type="image/x-icon">
+</head>
+<body>
+    <header class="w-screen flex p-7 px-7 justify-between items-center">
+        <div class="w-44">
+            <img src="assets/Logo_Omegle.svg.webp" class="cursor-pointer" alt="Logo_Omegle">
+        </div>
+        <h1 class="font-semibold text-2xl cursor-default">Talk To Strangers!</h1>
+    </header>  
+    <div class="flex w-screen gap-3 p-7 px-[2vw]">
+      <div class="grid gap-3">
+        <video src="assets/OmegleSkip.mp4"  id="stranger" autoplay playsinline class="border-none bg-#565456" style=" width: 21.8rem; height: 17vw; object-fit: cover;">
+        </video>
+        <video src="assets/OmegleSkip.mp4"  id="you" class="border-none bg-#565456" muted autoplay playsinline="playsinline" style="width: 21.8rem; height: 17vw; object-fit: cover;"></video>
+      </div>
+      <div class="grid gap-2">
+       <div class="border border-gray-400 overflow-scroll p-2" style="height: 30vw;">
+        <h1 id="connection-status" class="text-red-500">Connecting...</h1>
+        <h1>You both Like tiktok</h1>
+        <div class="h-3"></div>
+        <div id="chat">
+          
+        </div>
+       </div>
+       <div class="flex gap-[.67vw]">
+         <button class="border border-gray-400 px-[2vw] font-semibold hover:bg-blue-500 hover:text-white transition-all" onclick="findNextRoom()">Next</button>
+         <input type="text" class="border border-gray-400 p-[1vw] px-[1vw] outline-none" style="width: 58vw;" name="" id="message">
+         <button class="border border-gray-400 px-[2vw] font-semibold hover:bg-blue-500 hover:text-white transition-all" id="send" onclick="sendMessage()">Send</button>
+       </div>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="video.js" defer></script>
+</body>
+</html>
