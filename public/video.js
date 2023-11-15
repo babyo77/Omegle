@@ -54,7 +54,6 @@ socket.on('paired', (msg) => {
 
 
 window.onbeforeunload = () => {
-    localStorage.clear()
     Chat.innerHTML=''
     if(peerConnection){
         hangup()
@@ -88,6 +87,11 @@ function createMessage(from, message,id) {
 }
 
 socket.on('message:recieved', (msg) => {
+    paired = true
+    if(paired && connectionstatus.textContent == 'Chat Disconnected❗' ){
+        Chat.innerHTML=''
+       connectionstatus.textContent = 'Partner Found 🦄 - Chat Connected'
+    }
     const typing =  document.querySelectorAll('#typing')
     typing.forEach(typingMSG=>{
         if(typing){
@@ -195,6 +199,7 @@ const configuration = {
 
 // Local peer initiates the call
 async function start_call() {
+    paired = true
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         // Assuming 'You' is the local video element
