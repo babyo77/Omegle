@@ -3,14 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omegle</title>
+
+    <script type="application/ld+json">
+      {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "headline": "Omegle - Talk To Strangers!",
+          "datePublished": "2023-11-11",
+          "author": {
+              "@type": "Person",
+              "name": "AdarshUC"
+          },
+          "image": "https://omegle-production.up.railway.app/public/assets/logo.webp",
+          "publisher": {
+              "@type": "Organization",
+              "name": "Omegle",
+              "logo": {
+                  "@type": "ImageObject",
+                  "url": "assets/logo.webp"
+              }
+          }
+      }
+  </script>  
+
+    <!-- Basic SEO Meta Tags -->
+    <meta name="description" content="Connect with strangers in real-time. Unleash serendipity with Omeglee. Chat with people worldwide.">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Omeglee - Talk To Strangers!">
+    <meta property="og:description" content="Connect with strangers in real-time. Unleash serendipity with Omeglee. Chat with people worldwide.">
+    <meta property="og:image" content="https://omegle-production.up.railway.app/public/assets/logo.webp">
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Omegle - Talk To Strangers!">
+    <meta name="twitter:description" content="Connect with strangers in real-time. Unleash serendipity with Omeglee. Chat with people worldwide.">
+    <meta name="twitter:image" content="https://omegle-production.up.railway.app/public/assets/logo.webp">
+
+    <!-- Other SEO Meta Tags -->
+    <title>Omegle - Talk To Strangers!</title>
+    <link rel="canonical" href="https://omegle-production.up.railway.app">
+    <link rel="shortcut icon" href="assets/logo.webp" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
 </head>
 <body>
     <header class="w-screen flex p-7 px-7 max-sm:p-[7vw] max-sm:pt-8 justify-between items-center">
         <div class="w-44 max-sm:w-[37vw]">
-            <img src="assets/Logo_Omegle.svg.webp" class="cursor-pointer" alt="Logo_Omegle">
+          <a href="https://omegle-production.up.railway.app"> 
+            <img src="assets/omegel.webp" class="cursor-pointer" alt="Omegle,Omeglee platform screenshot">
+          </a>
         </div>
         <h1 class="font-semibold text-2xl cursor-default max-sm:text-[4vw] max-sm:mt-1.5">Talk To Strangers!</h1>
     </header>  
@@ -38,10 +80,12 @@
        </div>
       </div>
     </div>
-    <div class="flex gap-2 justify-center items-center">
+    <div class="grid gap-1 pb-4 justify-center items-center  text-center">
       <!-- <input type="radio" name="agremment" id="Agremment" checked required> -->
   <label for="agremment" class="text-center text-xs font-semibold p-3 max-sm:text-[2vw]">By Start Calling you Accept all Privacy Policy and Terms of Service</label>
+  <a class="text-xs -mt-3 hover:text-blue-500" href="https://www.Omegle.com" target="_blank">Visit Omegle</a>
   </div>
+
     <script src="/socket.io/socket.io.js"></script>
     
     <script src="video.js" defer></script>
