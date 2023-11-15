@@ -1,9 +1,13 @@
+let connectVerify = false
+let socket;
 if(localStorage.getItem('ok')=='ok'){
-
+  connectVerify  = true
 }else{
     window.location.href = '/index.html'
 }
-let socket = io()
+if(connectVerify){
+    socket = io()
+}
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
 let ChatDiv = document.getElementById('ChatDiv')
@@ -50,6 +54,7 @@ socket.on('paired', (msg) => {
 
 
 window.onbeforeunload = () => {
+    localStorage.clear()
     Chat.innerHTML=''
     if(peerConnection){
         hangup()
@@ -151,7 +156,7 @@ messageInput.addEventListener('input',()=>{
                 })  
             }
         })  
-    }, 1000);
+    }, 1300);
 
 })
 
@@ -171,7 +176,7 @@ socket.on('typing',()=>{
                 msg.remove()
             })  
         }
-    }, 1000);
+    }, 1300);
 })
 
 
