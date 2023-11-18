@@ -1,13 +1,16 @@
+/* define all Variables */
+
 let socket = io()
 let peer = new Peer({
     secure: true,
-  });
+});
 let YourID;
-peer.on('open',id=>{
+peer.on('open', id => {
     YourID = id
-    console.log('YOUR ID',YourID)
+    console.log('YOUR ID', YourID)
 })
-
+let localStream;
+let RemoteID;
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
 let ChatDiv = document.getElementById('ChatDiv')
@@ -15,13 +18,19 @@ let messageInput = document.getElementById('message')
 let stranger = document.getElementById('stranger')
 let You = document.getElementById('you')
 let paired = false
+let nextcall = true
+let TypinStatus = false
+
+/* on socket connect change the connnection status */
 
 socket.on('connect', () => {
     connectionstatus.classList = []
     color('')
     connectionstatus.textContent = "Finding Partner 🔎"
-    
+
 })
+
+/* color for connection status */
 
 function color(ok) {
     connectionstatus.classList.remove('text-red-500', 'text-green-500');
@@ -33,34 +42,40 @@ function color(ok) {
 
 }
 
+/* for next */
+
 function findNextRoom() {
-   stranger.srcObject = null
-   stranger.muted = true
+    stranger.srcObject = null
+    stranger.muted = true
     paired = false
     socket.emit('next')
     console.log('next')
 }
 
-let nextcall = true
+/* event when paired */
+
 socket.on('paired', (msg) => {
     color('')
     connectionstatus.textContent = msg
     paired = true
     Chat.innerHTML = ''
-    if(!nextcall){
-            socket.emit('calling',YourID)
-            nextcall = true
-    }else{
-        socket.emit('calling',YourID)
-          console.log('next call')
+    if (!nextcall) {
+        socket.emit('calling', YourID)
+        nextcall = true
+    } else {
+        socket.emit('calling', YourID)
+        console.log('next call')
     }
 })
 
+/* when user close the window or reload */
 
 window.onbeforeunload = () => {
     socket.emit('message', 'Disconnected ❗')
-    Chat.innerHTML=''
+    Chat.innerHTML = ''
 }
+
+/* event when pairing */
 
 socket.on('pairing', (msg) => {
     connectionstatus.textContent = msg
@@ -68,33 +83,37 @@ socket.on('pairing', (msg) => {
     paired = false
 })
 
-function createMessage(from, message,id) {
+/* funtion for making messages */
+
+function createMessage(from, message, id) {
     const msg = document.createElement('p')
     msg.textContent = `${from}: ${message}`
     msg.id = id || 'message'
     if (message == 'Disconnected❗') {
         msg.textContent = message
         paired = false
-    }else if(from == 'Stranger'){
+    } else if (from == 'Stranger') {
         msg.classList.add('text-red-500')
     }
     Chat.append(msg)
     scrollToBottom()
 }
 
+/* event to listen to all incoming messages */
+
 socket.on('message:recieved', (msg) => {
     paired = true
-    if(paired && connectionstatus.textContent == 'Chat Disconnected❗' ){
-        Chat.innerHTML=''
-       connectionstatus.textContent = 'Partner Found 🦄 - Chat Connected'
+    if (paired && connectionstatus.textContent == 'Chat Disconnected❗') {
+        Chat.innerHTML = ''
+        connectionstatus.textContent = 'Partner Found 🦄 - Chat Connected'
     }
-    const typing =  document.querySelectorAll('#typing')
-    typing.forEach(typingMSG=>{
-        if(typing){
+    const typing = document.querySelectorAll('#typing')
+    typing.forEach(typingMSG => {
+        if (typing) {
 
-            typing.forEach(msg=>{
+            typing.forEach(msg => {
                 typingMSG.remove()
-            })  
+            })
         }
     })
     color('')
@@ -110,84 +129,92 @@ socket.on('message:recieved', (msg) => {
         createMessage('Stranger', msg)
         scrollToBottom()
     }
-   
+
 })
 
+/* function to send message */
+
 function sendMessage() {
-    if(messageInput.value=='Disconnected ❗' || messageInput.value == 'Stranger left The Chat'){
+    if (messageInput.value == 'Disconnected ❗' || messageInput.value == 'Stranger left The Chat') {
         return
     }
-    if (messageInput.value.trim() && paired === true){
+    if (messageInput.value.trim() && paired === true) {
         socket.emit('message', messageInput.value)
-    createMessage('You', messageInput.value)
-    messageInput.value=""
-    scrollToBottom()
+        createMessage('You', messageInput.value)
+        messageInput.value = ""
+        scrollToBottom()
     }
-    
+
 }
 
-messageInput.addEventListener('keydown',(e)=>{
-    if(e.key=='Enter'){
+/* Send message when enter pressed */
+
+messageInput.addEventListener('keydown', (e) => {
+    if (e.key == 'Enter') {
         sendMessage()
     }
 })
 
-document.addEventListener('keydown',(e)=>{
-    if(e.key=='Escape'){
+/* next wehn Esc pressed */
+
+document.addEventListener('keydown', (e) => {
+    if (e.key == 'Escape') {
         findNextRoom()
     }
 })
 
-let TypinStatus = false
+/*send event when typing */
 
-messageInput.addEventListener('input',()=>{
-    if(!TypinStatus){
+messageInput.addEventListener('input', () => {
+    if (!TypinStatus) {
         TypinStatus = true
         socket.emit('typing')
         scrollToBottom()
     }
 
-   setTimeout(() => {
-    TypinStatus =  false
-        const typing =  document.querySelectorAll('#typing')
-        typing.forEach(msg=>{
-            if(typing){
+    setTimeout(() => {
+        TypinStatus = false
+        const typing = document.querySelectorAll('#typing')
+        typing.forEach(msg => {
+            if (typing) {
 
-                typing.forEach(msg=>{
+                typing.forEach(msg => {
                     msg.remove()
-                })  
+                })
             }
-        })  
+        })
     }, 1300);
 
 })
 
-socket.on('typing',()=>{
-    if(!TypinStatus){
-        createMessage('Stranger','Typing..','typing')
+/* event to listen when typing */
+
+socket.on('typing', () => {
+    if (!TypinStatus) {
+        createMessage('Stranger', 'Typing..', 'typing')
         TypinStatus = true
         scrollToBottom()
     }
 
-  setTimeout(() => {
-        TypinStatus=false
-        const typing =  document.querySelectorAll('#typing')
-        if(typing){
+    setTimeout(() => {
+        TypinStatus = false
+        const typing = document.querySelectorAll('#typing')
+        if (typing) {
 
-            typing.forEach(msg=>{
+            typing.forEach(msg => {
                 msg.remove()
-            })  
+            })
         }
     }, 1300);
 })
 
+/* scroll to bottom when new message send */
 
-function scrollToBottom(){
+function scrollToBottom() {
     ChatDiv.scrollTop = ChatDiv.scrollHeight;
 }
 
-// video call PeerJS
-let localStream;
+/* get user video and audio access */
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((stream) => {
@@ -198,35 +225,37 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         console.error('Error accessing media devices:', error);
     });
 
-    peer.on('call', (call) => {
-        call.answer(localStream);
-        call.on('stream', (stream) => {
-          stranger.srcObject = stream;
-        });
+/* event to listen when call */
+
+peer.on('call', (call) => {
+    call.answer(localStream);
+    call.on('stream', (stream) => {
+        stranger.srcObject = stream;
     });
-    
-    
-    let RemoteID;
-    socket.on('call-Accepted',id=>{
-        RemoteID = id
-        console.log('incoming call',id)
-        makeCall()
-      })
+});
 
+/* when call accepted */
 
-      function makeCall(){
-            const call = peer.call(RemoteID, localStream);
-            call.on('stream', (stream) => {
-                stranger.srcObject = stream;
-                stranger.muted = false
-                console.log('call accepted from',RemoteID)
-              });
-              call.on("error", function (err) {
-                console.error(err);
-                stranger.srcObject = null
-                socket.emit('message', 'Disconnected ❗')
-                Chat.innerHTML=''
-            });
-    }
-    
-  
+socket.on('call-Accepted', id => {
+    RemoteID = id
+    console.log('incoming call', id)
+    makeCall()
+})
+
+/* funtion to call when paired */
+
+function makeCall() {
+    const call = peer.call(RemoteID, localStream);
+    call.on('stream', (stream) => {
+        stranger.srcObject = stream;
+        stranger.muted = false
+        console.log('call accepted from', RemoteID)
+    });
+    call.on("error", function (err) {
+        console.error(err);
+        stranger.srcObject = null
+        socket.emit('message', 'Disconnected ❗')
+        Chat.innerHTML = ''
+    });
+}
+
