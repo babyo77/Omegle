@@ -1,6 +1,5 @@
 let connectVerify = false
 let socket;
-let peerConnection;
 if(localStorage.getItem('ok')=='ok'){
   connectVerify  = true
 }else{
@@ -35,11 +34,13 @@ function color(ok) {
 }
 
 function findNextRoom() {
+    if(peerConnection){
         hangup()
+        socket.emit('hangup')
+    }
     paired = false
     socket.emit('next')
     console.log('next')
-    socket.emit('hangup')
 }
 
 
@@ -48,19 +49,24 @@ socket.on('paired', (msg) => {
     connectionstatus.textContent = msg
     paired = true
     Chat.innerHTML = ''
-webRTC()
+
 })
 
 
 window.onbeforeunload = () => {
     Chat.innerHTML=''
-    hangup()
-    socket.emit('hangup')
+    if(peerConnection){
+        hangup()
+        socket.emit('hangup')
+    }
     socket.emit('message', 'Disconnected ❗')
 }
 
 socket.on('pairing', (msg) => {
-    hangup()
+    if(peerConnection){
+        hangup()
+        socket.emit('hangup')
+    }
     connectionstatus.textContent = msg
     Chat.innerHTML = ''
     paired = false
@@ -183,25 +189,23 @@ function scrollToBottom(){
 }
 
 // webRTC video call Feature
-function webRTC(){
 
-    const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-    peerConnection = new RTCPeerConnection(configuration);
-    let localStream
-    const constraints = {
-        'video': true,
-        'audio': true
-    }
-    navigator.mediaDevices.getUserMedia(constraints)
+const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+const peerConnection = new RTCPeerConnection(configuration);
+let localStream
+const constraints = {
+    'video': true,
+    'audio': true
+}
+navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
         localStream = stream
-        You.srcObject = localStream
-        makeCall()
+         You.srcObject = localStream
     })
     .catch(error => {
         console.error('Error accessing media devices.', error);
     });
-    
+
     async function makeCall() {
         console.log('calling')
         localStream.getTracks().forEach(track => {
@@ -214,21 +218,21 @@ function webRTC(){
         console.log('sending offer')
     }
     
-    
-    socket.on('offer', async message => {
-        if (message) {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(message));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit('answer',answer);
-            console.log('r3c offer')
-        }
-    });
-    
-    socket.on('answer', async message => {
-        if (message) {
-            const remoteDesc = new RTCSessionDescription(message);
-            await peerConnection.setRemoteDescription(remoteDesc);
+ 
+socket.on('offer', async message => {
+    if (message) {
+        peerConnection.setRemoteDescription(new RTCSessionDescription(message));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit('answer',answer);
+        console.log('r3c offer')
+    }
+});
+
+socket.on('answer', async message => {
+    if (message) {
+        const remoteDesc = new RTCSessionDescription(message);
+        await peerConnection.setRemoteDescription(remoteDesc);
         console.log('receiving answer')
     }
 });
@@ -276,16 +280,15 @@ peerConnection.addEventListener('track', async (event) => {
     console.log('grot track',remoteStream)
 });
 
-}
 
 function hangup(){
-    if(peerConnection){
-        peerConnection.close()
-        stranger.srcObject = null
-    }
+    peerConnection.close()
+    stranger.srcObject = null
 }
 
-
+socket.on('hangup',()=>{
+    hangup()
+})
 
 
 
