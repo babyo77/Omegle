@@ -282,6 +282,7 @@ peerConnection.addEventListener('track', async (event) => {
         });
     const [remoteStream] = event.streams;
     stranger.srcObject = remoteStream;
+    stranger.muted = false
     console.log('grot track',remoteStream)
 });
 
