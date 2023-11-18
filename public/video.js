@@ -49,7 +49,7 @@ socket.on('paired', (msg) => {
     connectionstatus.textContent = msg
     paired = true
     Chat.innerHTML = ''
-    start_call()
+    makeCall()
 })
 
 
@@ -187,155 +187,105 @@ socket.on('typing',()=>{
 function scrollToBottom(){
     ChatDiv.scrollTop = ChatDiv.scrollHeight;
 }
+
 // webRTC video call Feature
-let peerConnection;
-const configuration = {
-    iceServers: [
-        {
-            urls: ['stun:stun.l.google.com:19302'],
-        },
-    ],
-};
 
-// Local peer initiates the call
-async function start_call() {
-    paired = true
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        // Assuming 'You' is the local video element
-        You.srcObject = stream;
+const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+const peerConnection = new RTCPeerConnection(configuration);
+let localStream
+const constraints = {
+    'video': true,
+    'audio': true
+}
+navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+        localStream = stream
+         You.srcObject = localStream
+    })
+    .catch(error => {
+        console.error('Error accessing media devices.', error);
+    });
 
-        // Create an RTCPeerConnection if not already created
-        if (!peerConnection) {
-            createPeerConnection();
-        }
-
-        // Add the local stream to the peer connection
-        stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
-
-        // Create an offer and set it as the local description
+    async function makeCall() {
+        console.log('calling')
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+        
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
-
-        // Wait for ICE gathering to complete before sending the offer
-        await new Promise((resolve) => {
-            if (peerConnection.iceGatheringState === 'complete') {
-                resolve();
-            } else {
-                peerConnection.onicegatheringstatechange = () => {
-                    if (peerConnection.iceGatheringState === 'complete') {
-                        resolve();
-                        peerConnection.onicegatheringstatechange = null; // Reset the event handler
-                    }
-                };
-            }
-        });
-
-        // Send the offer to the signaling server
-      await  socket.emit('offer', offer);
-    } catch (error) {
-        console.error('Error accessing media devices:', error);
-        window.location.href = '/index.html'
+        socket.emit('offer',offer);
+        console.log('sending offer')
     }
-}
-
-// Function to create and configure the peer connection
-async function createPeerConnection() {
-    peerConnection = new RTCPeerConnection(configuration);
-
-    // Handle ICE candidate events
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            // Send the ICE candidate to the signaling server
-            socket.emit('ice-candidate', event.candidate);
-        }
-    };
-
-    // Event triggered when a remote stream is added to the peer connection
-    peerConnection.ontrack = (event) => {
-        // Assuming 'stranger' is the remote video element
-        stranger.srcObject = event.streams[0];
-        stranger.muted = false;
-    };
-
-    // Additional ICE event handlers for logging purposes
-    peerConnection.onicecandidateerror = (error) => {
-        console.error('ICE candidate error:', error);
-    };
-
-    peerConnection.oniceconnectionstatechange = () => {
-        console.log('ICE connection state change:', peerConnection.iceConnectionState);
-    };
-
-    peerConnection.onicegatheringstatechange = () => {
-        console.log('ICE gathering state change:', peerConnection.iceGatheringState);
-    };
-}
-
-// Remote peer receives the offer through the signaling server
-socket.on('offer', async (offer) => {
-    try {
-        // Create an RTCPeerConnection if not already created
-        if (!peerConnection) {
-            createPeerConnection();
-        }
-
-        if (peerConnection.signalingState !== 'stable') {
-            await Promise.all([
-                peerConnection.setLocalDescription({ type: 'rollback' }),
-                peerConnection.setRemoteDescription(offer),
-            ]);
-            return;
-        }
-
-        // Set the remote description to the received offer
-        await peerConnection.setRemoteDescription(offer);
-
-        // Create an answer and set it as the local description
+    
+ 
+socket.on('offer', async message => {
+    if (message) {
+        peerConnection.setRemoteDescription(new RTCSessionDescription(message));
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
-
-        // Send the answer to the signaling server
-       await socket.emit('answer', answer);
-    } catch (error) {
-        console.error('Error handling offer:', error);
+        socket.emit('answer',answer);
+        console.log('r3c offer')
     }
 });
 
-// Remote peer receives the answer through the signaling server
-socket.on('answer', async (answer) => {
-    try {
-        // Set the remote description to the received answer
-        await peerConnection.setRemoteDescription(answer);
-    } catch (error) {
-        console.error('Error setting remote description:', error);
+socket.on('answer', async message => {
+    if (message) {
+        const remoteDesc = new RTCSessionDescription(message);
+        await peerConnection.setRemoteDescription(remoteDesc);
+        console.log('receiving answer')
     }
 });
 
-function hangup() {
-    if (peerConnection) {
-        // Close the peer connection
-        peerConnection.close();
-        peerConnection = null;
 
-        // Clear the srcObject
-        stranger.srcObject = null;
-
-        socket.emit('hangup');
+// Listen for local ICE candidates on the local RTCPeerConnection
+peerConnection.addEventListener('icecandidate', event => {
+    if (event.candidate) {
+        socket.emit('icecandidate', event.candidate);
+        console.log('ice',event.candidate)
     }
+});
+
+// Listen for remote ICE candidates and add them to the local RTCPeerConnection
+socket.on('icecandidate', async message => {
+    if (message) {
+        try {
+            await peerConnection.addIceCandidate(message);
+            console.log('receiving ice',message)
+        } catch (e) {
+            console.error('Error adding received ice candidate', e);
+        }
+    }
+});
+
+// Listen for connectionstatechange on the local RTCPeerConnection
+peerConnection.addEventListener('connectionstatechange', event => {
+    if (peerConnection.connectionState === 'connected') {
+        console.log('ok')
+        socket.emit('accepted')
+    }
+});
+
+socket.on('accepted',()=>{
+        if (localStream) {
+            makeCall();
+        } else {
+            console.error('Local stream is not available.');
+        }
+})
+
+peerConnection.addEventListener('track', async (event) => {
+    const [remoteStream] = event.streams;
+    stranger.srcObject = remoteStream;
+    console.log('grot track',remoteStream)
+});
+
+
+function hangup(){
+    peerConnection.close()
+    stranger.srcObject = null
 }
 
-socket.on('hangup', ()=>{
+socket.on('hangup',()=>{
     hangup()
-});
-
-socket.on('disconnect', () => {
-    hangup();
-    socket.emit('message', 'Disconnected ❗');
-});
-
-
-  window.addEventListener('offline', ()=>{
-    window.location.href ='/index.html'
-  });
-  
+})

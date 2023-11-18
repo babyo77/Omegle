@@ -48,10 +48,15 @@ socket.on('next',()=>{
     socket.broadcast.to(room).emit('answer', answer);
   });
 
-  socket.on('ice-candidate', (iceCandidate) => {
+  socket.on('icecandidate', (iceCandidate) => {
     const rooms = Array.from(socket.rooms);
     const room = rooms.length > 1 ? rooms[1] : null;
-    socket.broadcast.to(room).emit('ice-candidate', iceCandidate);
+    socket.broadcast.to(room).emit('icecandidate', iceCandidate);
+  });
+  socket.on('accepted', () => {
+    const rooms = Array.from(socket.rooms);
+    const room = rooms.length > 1 ? rooms[1] : null;
+    socket.broadcast.to(room).emit('accepted');
   });
 
   socket.on('hangup', () => {
@@ -61,10 +66,12 @@ socket.on('next',()=>{
     socket.broadcast.to(room).emit('hangup');
   });
 
+
+
   socket.on('message', (data) => {
     const rooms = Array.from(socket.rooms);
     const room = rooms.length > 1 ? rooms[1] : null;
-        socket.broadcast.to(room).emit('message:recieved', data);
+        socket.to(room).emit('message:recieved', data);
 });
 socket.on('typing',()=>{
   const rooms = Array.from(socket.rooms);
