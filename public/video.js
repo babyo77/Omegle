@@ -267,11 +267,11 @@ peerConnection.addEventListener('connectionstatechange', event => {
 });
 
 socket.on('accepted',()=>{
-        if (localStream) {
-            makeCall();
-        } else {
-            console.error('Local stream is not available.');
-        }
+    if (peerConnection.connectionState === 'connected') {
+        makeCall()
+    } else {
+        console.log('Ignoring makeCall in an invalid state:', peerConnection.connectionState);
+    }
 })
 
 peerConnection.addEventListener('track', async (event) => {
