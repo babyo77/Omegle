@@ -49,7 +49,7 @@ socket.on('paired', (msg) => {
     connectionstatus.textContent = msg
     paired = true
     Chat.innerHTML = ''
-
+makeCall()
 })
 
 
