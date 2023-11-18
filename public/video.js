@@ -39,6 +39,7 @@ function findNextRoom() {
     paired = false
     socket.emit('next')
     console.log('next')
+    peerConnection = new RTCPeerConnection(configuration)
 }
 
 
