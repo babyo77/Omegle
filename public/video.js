@@ -246,7 +246,6 @@ function webRTC(){
     peerConnection.addEventListener('icecandidate', event => {
         if (event.candidate) {
             socket.emit('icecandidate', event.candidate);
-            console.log('ice',event.candidate)
         }
     });
     
@@ -255,7 +254,6 @@ socket.on('icecandidate', async message => {
     if (message) {
         try {
             await peerConnection.addIceCandidate(new RTCIceCandidate(message));
-            console.log('receiving ice',message)
         } catch (e) {
             console.error('Error adding received ice candidate', e);
         }
