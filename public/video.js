@@ -215,7 +215,7 @@ function webRTC(){
                 peerConnection.addTrack(track, localStream);
             });
             
-            const offer = await peerConnection.createOffer();
+            const offer = await peerConnection.createOffer({ iceRestart: true });
         await peerConnection.setLocalDescription(offer);
         socket.emit('offer',offer);
         console.log('sending offer')
