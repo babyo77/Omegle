@@ -53,12 +53,7 @@ socket.on('next',()=>{
     const room = rooms.length > 1 ? rooms[1] : null;
     socket.broadcast.to(room).emit('icecandidate', iceCandidate);
   });
-  socket.on('accepted', () => {
-    const rooms = Array.from(socket.rooms);
-    const room = rooms.length > 1 ? rooms[1] : null;
-    socket.broadcast.to(room).emit('accepted');
-  });
-
+ 
   socket.on('hangup', () => {
     console.log('Hangup event received from a client');
     const rooms = Array.from(socket.rooms);

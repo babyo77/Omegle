@@ -34,10 +34,8 @@ function color(ok) {
 }
 
 function findNextRoom() {
-    if(peerConnection){
-        hangup()
-        socket.emit('hangup')
-    }
+   peerConnection.close()
+   call = true
     paired = false
     socket.emit('next')
     console.log('next')
@@ -47,24 +45,23 @@ function findNextRoom() {
 socket.on('paired', (msg) => {
     color('')
     connectionstatus.textContent = msg
+    peerConnection = new RTCPeerConnection(configuration);
     paired = true
     Chat.innerHTML = ''
-makeCall()
+    webRTC()
 })
 
 
 window.onbeforeunload = () => {
+    peerConnection.close()
+    call = true
     Chat.innerHTML=''
-    if(peerConnection){
-        hangup()
-        socket.emit('hangup')
-    }
     socket.emit('message', 'Disconnected ❗')
 }
 
 socket.on('pairing', (msg) => {
     if(peerConnection){
-        hangup()
+        
         socket.emit('hangup')
     }
     connectionstatus.textContent = msg
@@ -106,6 +103,7 @@ socket.on('message:recieved', (msg) => {
         connectionstatus.textContent = 'Chat Disconnected❗'
         color('ok')
         createMessage('Stranger', 'Stranger left The Chat')
+        stranger.srcObject = null
         paired = false
         scrollToBottom()
     } else {
@@ -197,56 +195,61 @@ const constraints = {
     'video': true,
     'audio': true
 }
-navigator.mediaDevices.getUserMedia(constraints)
+function webRTC(){
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
+    navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
         localStream = stream
          You.srcObject = localStream
-    })
-    .catch(error => {
-        console.error('Error accessing media devices.', error);
-    });
-
-    async function makeCall() {
-        console.log('calling')
-        localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStream);
+         makeCall()
+        })
+        .catch(error => {
+            console.error('Error accessing media devices.', error);
         });
         
-        const offer = await peerConnection.createOffer();
+        async function makeCall() {
+            console.log('calling')
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+            
+            const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         socket.emit('offer',offer);
         console.log('sending offer')
     }
     
- 
-socket.on('offer', async message => {
-    if (message) {
-        peerConnection.setRemoteDescription(new RTCSessionDescription(message));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        socket.emit('answer',answer);
-        console.log('r3c offer')
-    }
-});
-
-socket.on('answer', async message => {
-    if (message) {
-        const remoteDesc = new RTCSessionDescription(message);
-        await peerConnection.setRemoteDescription(remoteDesc);
-        console.log('receiving answer')
-    }
-});
-
-
-// Listen for local ICE candidates on the local RTCPeerConnection
-peerConnection.addEventListener('icecandidate', event => {
-    if (event.candidate) {
-        socket.emit('icecandidate', event.candidate);
-        console.log('ice',event.candidate)
-    }
-});
-
-// Listen for remote ICE candidates and add them to the local RTCPeerConnection
+    
+    socket.on('offer', async message => {
+        if (message) {
+            peerConnection.setRemoteDescription(new RTCSessionDescription(message));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('answer',answer);
+            console.log('r3c offer')
+        }
+    });
+    
+    socket.on('answer', async message => {
+        if (message) {
+            const remoteDesc = new RTCSessionDescription(message);
+            await peerConnection.setRemoteDescription(remoteDesc);
+            console.log('receiving answer')
+        }
+    });
+    
+    
+    // Listen for local ICE candidates on the local RTCPeerConnection
+    peerConnection.addEventListener('icecandidate', event => {
+        if (event.candidate) {
+            socket.emit('icecandidate', event.candidate);
+            console.log('ice',event.candidate)
+        }
+    });
+    
+    // Listen for remote ICE candidates and add them to the local RTCPeerConnection
 socket.on('icecandidate', async message => {
     if (message) {
         try {
@@ -262,34 +265,26 @@ socket.on('icecandidate', async message => {
 peerConnection.addEventListener('connectionstatechange', event => {
     if (peerConnection.connectionState === 'connected') {
         console.log('ok')
-        socket.emit('accepted')
     }
 });
 
-socket.on('accepted',()=>{
-    if (peerConnection.connectionState === 'connected') {
-        makeCall()
-    } else {
-        console.log('Ignoring makeCall in an invalid state:', peerConnection.connectionState);
-    }
-})
-
+let call = true
 peerConnection.addEventListener('track', async (event) => {
+    navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+        localStream = stream
+         You.srcObject = localStream
+         if(call){
+            webRTC()
+            call = false
+         }
+        })
+        .catch(error => {
+            console.error('Error accessing media devices.', error);
+        });
     const [remoteStream] = event.streams;
     stranger.srcObject = remoteStream;
     console.log('grot track',remoteStream)
 });
 
-
-function hangup(){
-    peerConnection.close()
-    stranger.srcObject = null
-    peerConnection = new RTCPeerConnection(configuration);
 }
-
-socket.on('hangup',()=>{
-    hangup()
-})
-
-
-
