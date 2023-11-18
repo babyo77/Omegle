@@ -34,10 +34,8 @@ function color(ok) {
 }
 
 function findNextRoom() {
-    if(peerConnection){
         hangup()
         socket.emit('hangup')
-    }
     paired = false
     socket.emit('next')
     console.log('next')
@@ -49,16 +47,14 @@ socket.on('paired', (msg) => {
     connectionstatus.textContent = msg
     paired = true
     Chat.innerHTML = ''
-    makeCall()
+makeCall()
 })
 
 
 window.onbeforeunload = () => {
     Chat.innerHTML=''
-    if(peerConnection){
         hangup()
         socket.emit('hangup')
-    }
     socket.emit('message', 'Disconnected ❗')
 }
 
@@ -289,3 +285,6 @@ function hangup(){
 socket.on('hangup',()=>{
     hangup()
 })
+
+
+
