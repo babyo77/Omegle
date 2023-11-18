@@ -36,6 +36,7 @@ function color(ok) {
 function findNextRoom() {
    peerConnection.close()
    call = true
+   stranger.srcObject = null
     paired = false
     socket.emit('next')
     console.log('next')
