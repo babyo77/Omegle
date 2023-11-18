@@ -284,6 +284,7 @@ peerConnection.addEventListener('track', async (event) => {
 function hangup(){
     peerConnection.close()
     stranger.srcObject = null
+    peerConnection = new RTCPeerConnection(configuration);
 }
 
 socket.on('hangup',()=>{
