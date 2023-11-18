@@ -187,6 +187,7 @@ function scrollToBottom(){
 }
 
 // webRTC video call Feature
+
 let call = true
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 let peerConnection = new RTCPeerConnection(configuration);
@@ -239,8 +240,7 @@ function webRTC(){
             console.log('receiving answer')
         }
     });
-    
-    
+       
     // Listen for local ICE candidates on the local RTCPeerConnection
     peerConnection.addEventListener('icecandidate', event => {
         if (event.candidate) {
@@ -267,7 +267,6 @@ peerConnection.addEventListener('connectionstatechange', event => {
         console.log('ok')
     }
 });
-
 
 peerConnection.addEventListener('track', async (event) => {
     navigator.mediaDevices.getUserMedia(constraints)
