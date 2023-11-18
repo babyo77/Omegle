@@ -34,12 +34,13 @@ function color(ok) {
 }
 
 function findNextRoom() {
+    if(peerConnection){
         hangup()
         socket.emit('hangup')
+    }
     paired = false
     socket.emit('next')
     console.log('next')
-    peerConnection = new RTCPeerConnection(configuration)
 }
 
 
@@ -54,8 +55,10 @@ makeCall()
 
 window.onbeforeunload = () => {
     Chat.innerHTML=''
+    if(peerConnection){
         hangup()
         socket.emit('hangup')
+    }
     socket.emit('message', 'Disconnected ❗')
 }
 
