@@ -285,9 +285,7 @@ function hangup(){
     }
 }
 
-socket.on('hangup',()=>{
-   
-})
+
 
 
 
