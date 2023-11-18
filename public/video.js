@@ -191,7 +191,7 @@ function scrollToBottom(){
 // webRTC video call Feature
 
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-const peerConnection = new RTCPeerConnection(configuration);
+let peerConnection = new RTCPeerConnection(configuration);
 let localStream
 const constraints = {
     'video': true,
