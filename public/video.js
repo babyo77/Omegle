@@ -221,8 +221,12 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 stranger.muted = false
                 console.log('call accepted from',RemoteID)
               });
-
+              call.on("error", function (err) {
+                console.error(err);
+                stranger.srcObject = null
+                socket.emit('message', 'Disconnected ❗')
+                Chat.innerHTML=''
+            });
     }
     
-
-
+  
