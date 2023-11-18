@@ -1,12 +1,13 @@
 const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-
 const app = express();
-const server = http.createServer(app);
+
+const server = require('http').Server(app)
+const socketIO = require('socket.io');
 const io = socketIO(server,{
-  cors:true
+  cors:true,
 });
+
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
@@ -31,37 +32,16 @@ socket.on('next',()=>{
   pair()
 })
 
+socket.on('calling',id=>{
+  const rooms = Array.from(socket.rooms)
+  const room = rooms.length > 1 ?rooms[1] : null;
+  socket.broadcast.to(room).emit('call-Accepted',id);
+})
+
   socket.on('disconnect', () => {
     console.log(socket.id + ' left')
     waiting_users.delete(userCount,socket.id);
   });
-
-  socket.on('offer', (offer) => {
-    const rooms = Array.from(socket.rooms);
-    const room = rooms.length > 1 ? rooms[1] : null;
-    socket.broadcast.to(room).emit('offer', offer);
-  });
-
-  socket.on('answer', (answer) => {
-    const rooms = Array.from(socket.rooms);
-    const room = rooms.length > 1 ? rooms[1] : null;
-    socket.broadcast.to(room).emit('answer', answer);
-  });
-
-  socket.on('icecandidate', (iceCandidate) => {
-    const rooms = Array.from(socket.rooms);
-    const room = rooms.length > 1 ? rooms[1] : null;
-    socket.broadcast.to(room).emit('icecandidate', iceCandidate);
-  });
- 
-  socket.on('hangup', () => {
-    console.log('Hangup event received from a client');
-    const rooms = Array.from(socket.rooms);
-    const room = rooms.length > 1 ? rooms[1] : null;
-    socket.broadcast.to(room).emit('hangup');
-  });
-
-
 
   socket.on('message', (data) => {
     const rooms = Array.from(socket.rooms);

@@ -46,7 +46,9 @@
     <link rel="canonical" href="https://omegle-production.up.railway.app">
     <link rel="shortcut icon" href="assets/logo.webp" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script defer src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="video.js" defer></script>
 </head>
 <body>
     <header class="w-screen flex p-7 px-7 max-sm:p-[7vw] max-sm:pt-8 justify-between items-center">
@@ -87,8 +89,5 @@
   <a class="text-xs -mt-3 hover:text-blue-500" href="https://www.Omegle.com" target="_blank">Visit Omegle</a>
   </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    
-    <script src="video.js" defer></script>
 </body>
 </html>

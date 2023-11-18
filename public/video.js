@@ -1,13 +1,13 @@
-let connectVerify = false
-let socket;
-if(localStorage.getItem('ok')=='ok'){
-  connectVerify  = true
-}else{
-    window.location.href = '/index.html'
-}
-if(connectVerify){
-    socket = io()
-}
+let socket = io()
+let peer = new Peer({
+    secure: true,
+  });
+let YourID;
+peer.on('open',id=>{
+    YourID = id
+    console.log('YOUR ID',YourID)
+})
+
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
 let ChatDiv = document.getElementById('ChatDiv')
@@ -34,37 +34,35 @@ function color(ok) {
 }
 
 function findNextRoom() {
-   peerConnection.close()
-   call = true
    stranger.srcObject = null
+   stranger.muted = true
     paired = false
     socket.emit('next')
     console.log('next')
 }
 
-
+let nextcall = true
 socket.on('paired', (msg) => {
     color('')
     connectionstatus.textContent = msg
-    peerConnection = new RTCPeerConnection(configuration);
     paired = true
     Chat.innerHTML = ''
-    webRTC()
+    if(!nextcall){
+            socket.emit('calling',YourID)
+            nextcall = true
+    }else{
+        socket.emit('calling',YourID)
+          console.log('next call')
+    }
 })
 
 
 window.onbeforeunload = () => {
-    peerConnection.close()
-    call = true
-    Chat.innerHTML=''
     socket.emit('message', 'Disconnected ❗')
+    Chat.innerHTML=''
 }
 
 socket.on('pairing', (msg) => {
-    if(peerConnection){
-        
-        socket.emit('hangup')
-    }
     connectionstatus.textContent = msg
     Chat.innerHTML = ''
     paired = false
@@ -105,6 +103,7 @@ socket.on('message:recieved', (msg) => {
         color('ok')
         createMessage('Stranger', 'Stranger left The Chat')
         stranger.srcObject = null
+        stranger.muted = true
         paired = false
         scrollToBottom()
     } else {
@@ -187,103 +186,43 @@ function scrollToBottom(){
     ChatDiv.scrollTop = ChatDiv.scrollHeight;
 }
 
-// webRTC video call Feature
+// video call PeerJS
+let localStream;
 
-let call = true
-const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-let peerConnection = new RTCPeerConnection(configuration);
-let localStream
-const constraints = {
-    'video': true,
-    'audio': true
-}
-function webRTC(){
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-        }
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+        You.srcObject = stream
         localStream = stream
-         You.srcObject = localStream
-         makeCall()
-        })
-        .catch(error => {
-            console.error('Error accessing media devices.', error);
+    })
+    .catch((error) => {
+        console.error('Error accessing media devices:', error);
+    });
+
+    peer.on('call', (call) => {
+        call.answer(localStream);
+        call.on('stream', (stream) => {
+          stranger.srcObject = stream;
         });
-        
-        async function makeCall() {
-            console.log('calling')
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
-            
-            const offer = await peerConnection.createOffer({ iceRestart: true });
-        await peerConnection.setLocalDescription(offer);
-        socket.emit('offer',offer);
-        console.log('sending offer')
-    }
-    
-    
-    socket.on('offer', async message => {
-        if (message) {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(message));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit('answer',answer);
-            console.log('r3c offer')
-        }
     });
     
-    socket.on('answer', async message => {
-        if (message) {
-            const remoteDesc = new RTCSessionDescription(message);
-            await peerConnection.setRemoteDescription(remoteDesc);
-            console.log('receiving answer')
-        }
-    });
-       
-    // Listen for local ICE candidates on the local RTCPeerConnection
-    peerConnection.addEventListener('icecandidate', event => {
-        if (event.candidate) {
-            socket.emit('icecandidate', event.candidate);
-        }
-    });
     
-    // Listen for remote ICE candidates and add them to the local RTCPeerConnection
-socket.on('icecandidate', async message => {
-    if (message) {
-        try {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(message));
-        } catch (e) {
-            console.error('Error adding received ice candidate', e);
-        }
+    let RemoteID;
+    socket.on('call-Accepted',id=>{
+        RemoteID = id
+        console.log('incoming call',id)
+        makeCall()
+      })
+
+
+      function makeCall(){
+            const call = peer.call(RemoteID, localStream);
+            call.on('stream', (stream) => {
+                stranger.srcObject = stream;
+                stranger.muted = false
+                console.log('call accepted from',RemoteID)
+              });
+
     }
-});
+    
 
-// Listen for connectionstatechange on the local RTCPeerConnection
-peerConnection.addEventListener('connectionstatechange', event => {
-    if (peerConnection.connectionState === 'connected') {
-        console.log('ok')
-    }
-});
 
-peerConnection.addEventListener('track', async (event) => {
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-        localStream = stream
-         You.srcObject = localStream
-         if(call){
-            webRTC()
-            call = false
-         }
-        })
-        .catch(error => {
-            console.error('Error accessing media devices.', error);
-        });
-    const [remoteStream] = event.streams;
-    stranger.srcObject = remoteStream;
-    stranger.muted = false
-    console.log('grot track',remoteStream)
-});
-
-}
