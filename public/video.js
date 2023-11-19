@@ -225,9 +225,6 @@ navigator.mediaDevices.getUserMedia({
         width: { ideal: 1280, max: 1920, min: 640, auto: true },
         height: { ideal: 720, max: 1080, min: 360, auto: true },
         frameRate: { ideal: 30, max: 60, auto: true },
-        facingMode: 'user',        // Prefer the user-facing camera (if available)
-        resizeMode: 'none',        // Preserve aspect ratio
-        aspectRatio: 16/9,          // Set the aspect ratio (adjust if needed)
     },
     audio: true;
  })
