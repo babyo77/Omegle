@@ -229,13 +229,7 @@ navigator.mediaDevices.getUserMedia({
         resizeMode: 'none',        // Preserve aspect ratio
         aspectRatio: 16/9,          // Set the aspect ratio (adjust if needed)
     },
-    audio: {
-        autoGainControl: false,     // Disable automatic gain control
-        noiseSuppression: false,    // Disable noise suppression
-        echoCancellation: false,    // Disable echo cancellation
-        sampleRate: 44100,          // Set the sample rate (adjust if needed)
-        channelCount: 2,            // Set the number of audio channels (adjust if needed)
-    },
+    audio: true;
  })
     .then((stream) => {
         You.srcObject = stream
