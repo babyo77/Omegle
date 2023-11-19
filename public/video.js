@@ -226,9 +226,9 @@ navigator.mediaDevices.getUserMedia({
         height: { ideal: 720, max: 1080, min: 360, auto: true },
         frameRate: { ideal: 30, max: 60, auto: true },
     },
-    audio: true;
+    audio: true,
  })
-    .then((stream) => {
+.then((stream) => {
         You.srcObject = stream
         localStream = stream
     })
