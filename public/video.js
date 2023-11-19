@@ -59,13 +59,17 @@ socket.on('paired', (msg) => {
     connectionstatus.textContent = msg
     paired = true
     Chat.innerHTML = ''
-    if (!nextcall) {
-        socket.emit('calling', YourID)
-        nextcall = true
-    } else {
-        socket.emit('calling', YourID)
-        console.log('next call')
-    }
+    setTimeout(() => {
+        if (!nextcall) {
+            socket.emit('calling', YourID)
+            console.log(YourID)
+            nextcall = true
+        } else {
+            socket.emit('calling', YourID)
+            console.log(YourID)
+            console.log('next call')
+        }
+    }, 1000);
 })
 
 /* when user close the window or reload */
