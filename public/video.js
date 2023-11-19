@@ -220,7 +220,23 @@ function scrollToBottom() {
 
 /* get user video and audio access */
 
-navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+navigator.mediaDevices.getUserMedia({ 
+    video: {
+        width: { ideal: 1280, max: 1920, min: 640, auto: true },
+        height: { ideal: 720, max: 1080, min: 360, auto: true },
+        frameRate: { ideal: 30, max: 60, auto: true },
+        facingMode: 'user',        // Prefer the user-facing camera (if available)
+        resizeMode: 'none',        // Preserve aspect ratio
+        aspectRatio: 16/9,          // Set the aspect ratio (adjust if needed)
+    },
+    audio: {
+        autoGainControl: false,     // Disable automatic gain control
+        noiseSuppression: false,    // Disable noise suppression
+        echoCancellation: false,    // Disable echo cancellation
+        sampleRate: 44100,          // Set the sample rate (adjust if needed)
+        channelCount: 2,            // Set the number of audio channels (adjust if needed)
+    },
+ })
     .then((stream) => {
         You.srcObject = stream
         localStream = stream
