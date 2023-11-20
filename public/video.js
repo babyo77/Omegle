@@ -35,6 +35,7 @@ navigator.mediaDevices.getUserMedia({
             host: "https://wicked-gray-sun-hat.cyclic.app",
             port: 3000,
             path: "/",
+            secure: true,
             config: {
                 iceServers: [
                   { urls: 'stun:stun.l.google.com:19302' },
