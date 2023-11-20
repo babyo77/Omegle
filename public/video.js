@@ -32,7 +32,7 @@ navigator.mediaDevices.getUserMedia({
     });
     socket.on('peer',()=>{
         peer = new Peer(undefined, {
-            host: "https://wicked-gray-sun-hat.cyclic.app",
+            host: "wicked-gray-sun-hat.cyclic.app",
             port: 3000,
             path: "/",
             secure: true,
