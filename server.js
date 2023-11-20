@@ -5,8 +5,12 @@ const socketIO = require('socket.io');
 const io = socketIO(server, {
   cors: true,
 });
-
-const PORT = process.env.PORT || 3000;
+const { ExpressPeerServer } = require('peer');
+const peerServer = ExpressPeerServer(server, {
+  debug: true
+});
+const PORT = process.env.PORT || 3001;
+app.use('/peerjs', peerServer);
 app.use(express.static('public'));
 
 let waiting_users = new Map();
