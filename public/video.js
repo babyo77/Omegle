@@ -32,8 +32,8 @@ navigator.mediaDevices.getUserMedia({
     });
     socket.on('peer',()=>{
         peer = new Peer(undefined, {
-            host: "wicked-gray-sun-hat.cyclic.app",
-            port: 443,
+            host: "https://wicked-gray-sun-hat.cyclic.app",
+            port: 3000,
             path: "/",
             config: {
                 iceServers: [
