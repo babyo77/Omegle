@@ -34,7 +34,7 @@ navigator.mediaDevices.getUserMedia({
         peer = new Peer(undefined, {
             host: "https://wicked-gray-sun-hat.cyclic.app",
             port: 3000,
-            
+            path: "/",
             config: {
                 iceServers: [
                   { urls: 'stun:stun.l.google.com:19302' },
