@@ -32,7 +32,7 @@ navigator.mediaDevices.getUserMedia({
     });
     socket.on('peer',()=>{
         peer = new Peer(undefined, {
-            secure: false,  
+            secure: true,  
             config: {
                 iceServers: [
                   { urls: 'stun:stun.l.google.com:19302' },
