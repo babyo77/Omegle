@@ -13,11 +13,18 @@ let waiting_users = new Map();
 let users = 0
 
 io.on('connection', (socket) => {
-
   let userCount = users++
+
+  socket.on('mediaTaken',()=>{
+    console.log('get')
+    socket.emit('peer')
+  })
+socket.on('connected',()=>{
   waiting_users.set(userCount, socket.id);
   console.log(waiting_users)
+  socket.emit('connected')
   pair()
+})
 
   socket.on('next', () => {
     socket.emit('pairing', 'Finding Partner 🔎')

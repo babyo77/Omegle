@@ -1,14 +1,52 @@
 /* define all Variables */
 
 let socket = io()
-let peer = new Peer({
-    secure: true,
-});
+let peer;
+let call;
 let YourID;
-peer.on('open', id => {
-    YourID = id
-    console.log('YOUR ID', YourID)
-})
+
+/* get user video and audio access */
+
+navigator.mediaDevices.getUserMedia({ 
+    video: {
+        width: { ideal: 1280, max: 1920, min: 640, auto: true },
+        height: { ideal: 720, max: 1080, min: 360, auto: true },
+        frameRate: { ideal: 30, max: 60, auto: true },
+    },
+     audio: {
+        autoGainControl: false,
+        noiseSuppression: false,
+        echoCancellation: false,
+        sampleRate: 44100,
+        channelCount: 2,
+    },
+ })
+.then((stream) => {
+        You.srcObject = stream
+        localStream = stream
+        console.log('takes')
+        socket.emit('mediaTaken')
+    })
+    .catch((error) => {
+        console.error('Error accessing media devices:', error);
+    });
+    socket.on('peer',()=>{
+        peer = new Peer(undefined, {
+            secure: false,  
+            config: {
+                iceServers: [
+                  { urls: 'stun:stun.l.google.com:19302' },
+                ],
+              },
+          });  
+        peer.on('open', id => {
+            YourID =  id
+            console.log('YOUR ID', YourID)
+             socket.emit('connected')
+             ok()
+        })
+    })
+
 let localStream;
 let RemoteID;
 let connectionstatus = document.getElementById('connection-status')
@@ -23,11 +61,10 @@ let TypinStatus = false
 
 /* on socket connect change the connnection status */
 
-socket.on('connect', () => {
+socket.on('connected', () => {
     connectionstatus.classList = []
     color('')
     connectionstatus.textContent = "Finding Partner 🔎"
-
 })
 
 /* color for connection status */
@@ -48,6 +85,7 @@ function findNextRoom() {
     stranger.srcObject = null
     stranger.muted = true
     paired = false
+    call.close()
     socket.emit('next')
     console.log('next')
 }
@@ -75,6 +113,9 @@ socket.on('paired', (msg) => {
 /* when user close the window or reload */
 
 window.onbeforeunload = () => {
+    if(call && call.open){
+        call.close()
+    }
     socket.emit('message', 'Disconnected ❗')
     Chat.innerHTML = ''
 }
@@ -218,39 +259,17 @@ function scrollToBottom() {
     ChatDiv.scrollTop = ChatDiv.scrollHeight;
 }
 
-/* get user video and audio access */
-
-navigator.mediaDevices.getUserMedia({ 
-    video: {
-        width: { ideal: 1280, max: 1920, min: 640, auto: true },
-        height: { ideal: 720, max: 1080, min: 360, auto: true },
-        frameRate: { ideal: 30, max: 60, auto: true },
-    },
-     audio: {
-        autoGainControl: false,
-        noiseSuppression: false,
-        echoCancellation: false,
-        sampleRate: 44100,
-        channelCount: 2,
-    },
- })
-.then((stream) => {
-        You.srcObject = stream
-        localStream = stream
-    })
-    .catch((error) => {
-        console.error('Error accessing media devices:', error);
-    });
-
 /* event to listen when call */
+function ok(){
 
-peer.on('call', (call) => {
-    call.answer(localStream);
-    call.on('stream', (stream) => {
-        stranger.srcObject = stream;
+    peer.on('call', (call) => {
+        call.answer(localStream);
+        call.on('stream', (stream) => {
+            stranger.srcObject = stream;
+        });
     });
-});
-
+}
+    
 /* when call accepted */
 
 socket.on('call-Accepted', id => {
@@ -262,12 +281,15 @@ socket.on('call-Accepted', id => {
 /* funtion to call when paired */
 
 function makeCall() {
-    const call = peer.call(RemoteID, localStream);
+    call = peer.call(RemoteID, localStream);
     call.on('stream', (stream) => {
         stranger.srcObject = stream;
         stranger.muted = false
         console.log('call accepted from', RemoteID)
     });
+    call.on('end',()=>{
+      console.log('call ended');
+    })
     call.on("error", function (err) {
         console.error(err);
         stranger.srcObject = null
@@ -275,4 +297,3 @@ function makeCall() {
         Chat.innerHTML = ''
     });
 }
-
