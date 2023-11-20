@@ -45,6 +45,10 @@ navigator.mediaDevices.getUserMedia({
              socket.emit('connected')
              ok()
         })
+        peer.on('error',()=>{
+            alert('Server is Down')
+            window.location.href = 'https://instagram.com/babyo7_?utm_source=qr'
+        })
     })
 
 let localStream;
