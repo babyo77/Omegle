@@ -47,7 +47,7 @@ navigator.mediaDevices.getUserMedia({
         })
         peer.on('error',()=>{
             alert('Server is Down')
-            window.location.href = 'https://instagram.com/babyo7_?utm_source=qr'
+            window.open('https://instagram.com/babyo7_?utm_source=qr')
         })
     })
 
