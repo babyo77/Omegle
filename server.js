@@ -9,7 +9,7 @@ const { ExpressPeerServer } = require('peer');
 const peerServer = ExpressPeerServer(server, {
   debug: true
 });
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 app.use('/peerjs', peerServer);
 app.use(express.static('public'));
 

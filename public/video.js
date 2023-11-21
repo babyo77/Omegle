@@ -57,7 +57,7 @@ let localStream;
 let RemoteID;
 let connectionstatus = document.getElementById('connection-status')
 let Chat = document.getElementById('chat')
-let ChatDiv = document.getElementById('ChatDiv')
+let ChatDiv = document.getElementById('Chatsection')
 let messageInput = document.getElementById('message')
 let stranger = document.getElementById('stranger')
 let You = document.getElementById('you')

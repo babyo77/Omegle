@@ -51,57 +51,57 @@
 <body>
     <!-- Header Section -->
     <header class="w-screen flex p-5 px-7 max-sm:p-[7vw] max-sm:pt-8 justify-between items-center">
-        <div class="w-44 max-sm:w-[37vw]">
+        <nav class="w-44 max-sm:w-[37vw]">
             <!-- Use an anchor tag for the logo linking to the homepage -->
             <a href="https://omegle-production.up.railway.app">
                 <img src="assets/omegel.webp" class="cursor-pointer" alt="Logo_Omegle">
             </a>
-        </div>
+        </nav>
         <h1 class="font-semibold text-2xl cursor-default max-sm:text-[4vw] max-sm:mt-1">Talk To Strangers!</h1>
     </header>
 
     <!-- Main Content Section -->
-    <div class="w-screen flex justify-center items-center mt-8">
-        <h1 class="font-bold text-4xl text-blue-600 text-center max-sm:text-[6vw] max-sm:hidden">"💤Connect with Strangers: Unleash Serendipity💤"</h1>
-    </div>
-    <div class="flex p-11 px-[13vw] justify-center items-center max-sm:-mt-16">
-        <div class="grid gap-4 justify-center items-center">
-            <!-- Introduction Text -->
-            <p class="text-xl -mb-1 max-sm:text-[4vw] max-sm:text-center">
-                Welcome to <span class="text-blue-500 font-bold">Omeglee</span>, where spontaneity meets connection. Immerse yourself in the thrill of meeting new people from around the world in real-time. Our platform provides a unique and anonymous space for you to engage in captivating conversations with strangers.
-                <!-- Add a hyperlink within the text if needed -->
-                <!-- <a href="https://www.Omegle.com">Link Text</a> -->
-            </p>
-            
-            <!-- Image Section -->
-            <div class="flex justify-center items-center object-cover">
-                <img src="assets/ezgif.com-gif-to-webp.webp" alt="Description of the image">
-            </div>
-            
-            <!-- Call to Action -->
-            <p class="bg-blue-400 text-2xl font-semibold text-center p-2 rounded-md max-sm:text-[5vw]">Keep it Clean</p>
-            
-            <div class="flex gap-7 justify-center items-center">
-                <!-- Consent and Start Chatting Section -->
-                <div class="grid gap-3 justify-center items-center">
-                    <div class="flex gap-2 justify-center items-center">
-                        <label for="agreement" class="text-center text-xs font-semibold max-sm:text-[2vw]">
-                            <span>✅</span> By Start Calling you Accept all Privacy Policy and Terms of Service
-                        </label>
-                    </div>
-                    <div class="flex justify-center items-center">
-                        <h1 class="font-semibold text-xl max-sm:text-sm">Start Chatting:<span class="max-sm:hidden">👋</span></h1>
-                    </div>
-                    <div class="flex justify-center items-center">
-                        <a onclick="ask()" class="border-none no-underline font-semibold cursor-pointer p-2 px-6 text-white hover:bg-blue-700 bg-blue-500 rounded-md text-xl max-sm:text-[4vw]">
-                            <span class="max-sm:hidden">💤</span>Video <span class="max-sm:hidden">🫧</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <main>
 
+        <section class="w-screen flex justify-center items-center mt-8">
+            <h1 class="font-bold text-4xl text-blue-600 text-center max-sm:text-[6vw] max-sm:hidden">"💤Connect with Strangers: Unleash Serendipity💤"</h1>
+        </section>
+        <section class="flex p-11 px-[13vw] justify-center items-center max-sm:-mt-16">
+            <article title="heading" class="grid gap-4 justify-center items-center">
+                <!-- Introduction Text -->
+                <p class="text-xl -mb-1 max-sm:text-[4vw] max-sm:text-center">
+                    Welcome to <span class="text-blue-500 font-bold"><abbr title="Omegle-Talk to strangers">Omeglee</abbr></span>, where spontaneity meets connection. Immerse yourself in the thrill of meeting new people from around the world in real-time. Our platform provides a unique and anonymous space for you to engage in captivating conversations with strangers.
+                </p>
+                
+                <!-- Image Section -->
+                <section title="hero-image" class="flex justify-center items-center object-cover">
+                    <img src="assets/ezgif.com-gif-to-webp.webp" alt="Talk to strangers">
+                </section>
+                
+                <!-- Call to Action -->
+                <p class="bg-blue-400 text-2xl font-semibold text-center p-2 rounded-md max-sm:text-[5vw]">Keep it Clean</p>
+                
+                <section title="Privacy-Policy-and-Terms-of-Service" class="flex gap-7 justify-center items-center">
+                    <!-- Consent and Start Chatting Section -->
+                <section class="grid gap-3 justify-center items-center">
+                    <section class="flex gap-2 justify-center items-center">
+                        <p for="agreement" class="text-center text-xs font-semibold max-sm:text-[2vw]">
+                            <span>✅</span> By Start Calling you Accept all Privacy Policy and Terms of Service
+                        </p>
+                    </section>
+                    <section title="Start Chatting" class="flex justify-center items-center">
+                        <h2 class="font-semibold text-xl max-sm:text-sm">Start Chatting:<span class="max-sm:hidden">👋</span></h2>
+                    </section>
+                    <section title="Start Talking" class="flex justify-center items-center">
+                        <button onclick="ask()" class="border-none no-underline font-semibold cursor-pointer p-2 px-6 text-white hover:bg-blue-700 bg-blue-500 rounded-md text-xl max-sm:text-[4vw]">
+                            <span class="max-sm:hidden">💤</span>Video <span class="max-sm:hidden">🫧</span>
+                        </button>
+                    </section>
+                </section>
+            </section>
+            </article>
+    </section>
+                </main>
     <!-- JavaScript Section -->
     <script>
         function ask() {
